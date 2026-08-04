@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GX HOSTING | Public VPS Dashboard</title>
+    <!-- External CDN Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #00ff00;
+            --secondary: #00cc00;
+            --accent: #00ff80;
+            --bg: #050505;
+            --card-bg: #0a0f0a;
+            --text: #e0ffe0;
+            --danger: #ff3333;
+        }
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Consolas', 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Matrix Rain Canvas Background */
+        .matrix-bg {
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Glassmorphism Terminal Card */
+        .login-container {
+            background: linear-gradient(145deg, var(--card-bg), rgba(0, 0, 0, 0.7));
+            border: 1px solid rgba(0, 255, 0, 0.25);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.1), inset 0 0 60px rgba(0, 0, 0, 0.5);
+            animation: containerPulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes containerPulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(0, 255, 0, 0.10), inset 0 0 60px rgba(0,0,0,0.5); }
+            50% { box-shadow: 0 0 60px rgba(0, 255, 0, 0.25), inset 0 0 60px rgba(0,0,0,0.5); }
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--bg);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.35);
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        
+        .login-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 3px;
+            margin-bottom: 6px;
+        }
+        
+        .login-subtitle {
+            font-size: 11px;
+            opacity: 0.6;
+            letter-spacing: 2px;
+        }
+        
+        .terminal-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 13px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+        }
+        
+        .terminal-prompt {
+            color: var(--primary);
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .typing-effect::after {
+            content: '|';
+            animation: blink 1s infinite;
+            color: var(--primary);
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Action Button */
+        .dashboard-btn {
+            width: 100%;
+            background: rgba(0, 255, 0, 0.08);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 16px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Consolas', 'Courier New', monospace;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+        }
+        
+        .dashboard-btn:hover {
+            background: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 255, 0, 0.15);
+        }
+        
+        .stat-item { 
+            text-align: center; 
+        }
+        
+        .stat-value { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: var(--primary); 
+            margin-bottom: 4px;
+        }
+        
+        .stat-label { 
+            font-size: 9px; 
+            opacity: 0.5; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
+        
+        .footer-text {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 10px;
+            opacity: 0.4;
+            letter-spacing: 1px;
+            line-height: 1.5;
+        }
+        
+        .version-badge {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 10px;
+            opacity: 0.4;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Matrix Background Animation -->
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    
+    <!-- Main Terminal Card -->
+    <div class="login-container">
+        <div class="version-badge">v3.0.0</div>
+        
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-terminal"></i>
+            </div>
+            <h1 class="login-title">GX HOSTING</h1>
+            <p class="login-subtitle">ULTIMATE PUBLIC TERMINAL v3.0</p>
+        </div>
+        
+        <!-- Interactive Terminal Prompt -->
+        <div class="terminal-line">
+            <span class="terminal-prompt">root@gx-hosting:~$</span>
+            <span id="typingText" class="typing-effect"></span>
+        </div>
+
+        <!-- System Live Status Box -->
+        <div style="background: rgba(0, 255, 0, 0.03); border: 1px solid rgba(0, 255, 0, 0.2); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #88aa88;"><i class="fas fa-signal text-xs mr-1"></i> SERVER STATUS:</span>
+                <span style="font-size: 12px; color: #00ff00; font-weight: bold;">ONLINE (24/7)</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="font-size: 12px; color: #88aa88;"><i class="fas fa-key text-xs mr-1"></i> AUTH MODE:</span>
+                <span style="font-size: 12px; color: #00ff00; font-weight: bold;">NO PASSWORD</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="font-size: 12px; color: #88aa88;"><i class="fas fa-microchip text-xs mr-1"></i> SYSTEM LOAD:</span>
+                <span id="sysLoad" style="font-size: 12px; color: #00ff00; font-weight: bold;">0.02%</span>
+            </div>
+        </div>
+
+        <!-- Enter Action Button -->
+        <a href="#" onclick="alert('GX Hosting Terminal Active! Network Connected.'); return false;" class="dashboard-btn">
+            <i class="fas fa-power-off mr-2"></i> SYSTEM PANEL ACCESSIBLE
+        </a>
+
+        <!-- Feature Badges -->
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-value"><i class="fas fa-unlock"></i></div>
+                <div class="stat-label">Open Terminal</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value"><i class="fas fa-clock"></i></div>
+                <div class="stat-label">24/7 Uptime</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value"><i class="fas fa-server"></i></div>
+                <div class="stat-label">VPS Ready</div>
+            </div>
+        </div>
+        
+        <div class="footer-text">
+            <p>GX HOSTING - ULTIMATE VPS MANAGEMENT PANEL</p>
+            <p class="mt-1">Public Terminal Interface • No Auth Required</p>
+        </div>
+    </div>
+
+    <!-- Scripts for Animations & Effects -->
+    <script>
+        // Matrix Rain Animation Engine
+        (function() {
+            const canvas = document.getElementById('matrixCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテト';
+            const fontSize = 14;
+            const columns = Math.floor(canvas.width / fontSize);
+            const drops = Array(columns).fill(1);
+            
+            function draw() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#00ff0035';
+                ctx.font = fontSize + 'px monospace';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            setInterval(draw, 45);
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        })();
+
+        // Terminal Typing Effect
+        const textToType = 'SYSTEM_BOOT_COMPLETE_NO_PASSWORD';
+        const typingEl = document.getElementById('typingText');
+        let charIndex = 0;
+
+        function typeEffect() {
+            if (typingEl && charIndex < textToType.length) {
+                typingEl.textContent += textToType.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeEffect, 70);
+            }
+        }
+        setTimeout(typeEffect, 300);
+
+        // Simulated Dynamic System Load
+        setInterval(() => {
+            const loadEl = document.getElementById('sysLoad');
+            if(loadEl) {
+                const randomLoad = (Math.random() * (1.5 - 0.01) + 0.01).toFixed(2);
+                loadEl.innerText = randomLoad + '%';
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
